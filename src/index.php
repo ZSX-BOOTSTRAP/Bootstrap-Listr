@@ -22,6 +22,7 @@ if($options['general']['locale'] != null ) {
     require_once('listr-l10n.php');
 }
 require_once('listr-functions.php');
+// require_once('parsedown/Parsedown.php');
 
 // Configure optional table columns
 $table_options = $options['columns'];
@@ -50,12 +51,8 @@ $root_dir       = dirname($_SERVER['PHP_SELF']);
 $absolute_path  = str_replace(str_replace("%2F", "/", rawurlencode($this_folder)), '', $_SERVER['REQUEST_URI']);
 $dir_name       = explode("/", $this_folder);
 
-// Get protocol
-// if ($_SERVER['HTTPS']) {
-//     $protocol = "https://";
-// } else {
-//     $protocol = "http://";
-// }
+// $readme_content = false;
+// $readme_exists  = false;
 
 if(substr($navigation_dir, -1) != "/"){
     if(file_exists($navigation_dir)){
@@ -226,7 +223,7 @@ if ($options['bootstrap']['responsive_table']) {
 }
 
 // Count optional columns
-$table_count = 0;
+$table_count = 1;
 foreach($table_options as $value)
 {
   if($value === true)
@@ -249,6 +246,16 @@ if ($handle = opendir($navigation_dir))
 
             // Get file info.
             $info                  =    pathinfo($file);
+
+            // Check is readme enabled, and load file, if exists
+            // if ($info['basename'] == $options['general']['dir_readme_fname'] && $options['general']['dir_readme'] == true) {
+            //     if (($readme = file_get_contents($navigation_dir.$info['basename'])) != false ) {
+            //         $readme_content = $readme;
+            //         $readme_exists = true;
+            //     }
+            //     continue;
+            // }
+
             // Organize file info.
             $item['name']          =     $info['filename'];
             $item['lname']         =     strtolower($info['filename']);
@@ -406,13 +413,33 @@ if ($options['general']['enable_search'] == true) {
 
     $search .= "      <div class=\"col-xs-12 col-sm-5 col-md-4$search_offset\">" . PHP_EOL;
     $search .= "          <div class=\"form-group\">" . PHP_EOL;
-    $search .= "            <label class=\"form-control-label sr-only\" for=\"search\">". _('Search')."</label>" . PHP_EOL;
+    $search .= "            <label class=\"form-control-label sr-only\" for=\"listr-search\">". _('Search')."</label>" . PHP_EOL;
     $search .= "            <input type=\"text\" id=\"listr-search\" class=\"form-control$input_size\" placeholder=\"". _('Search')."\"$autofocus>" . PHP_EOL;
     // $search .= $icons['search'];
     $search .= "         </div>" . PHP_EOL; // form-group
     $search .= "      </div>" . PHP_EOL; // col
     $search .= "    </div>" . PHP_EOL; // row
 }
+
+// Show readme
+// $dir_readme = null;
+
+// if ($options['general']['dir_readme'] == true && $readme_exists == true) {
+//     $Parsedown = new Parsedown();
+
+//     $dir_readme  = "    <div class=\"card\">" . PHP_EOL;
+//     $dir_readme .= "      <div class=\"card-header\">" . PHP_EOL;
+//     $dir_readme .= "        <b>" . $options['general']['dir_readme_fname'] . "</b>" . PHP_EOL;
+//     $dir_readme .= "      </div>" . PHP_EOL;
+//     $dir_readme .= "      <div class=\"card-block\">" . PHP_EOL;
+//     $dir_readme .= "        <div class=\"card-text\"> " . PHP_EOL;
+//     $dir_readme .= "          <div class=\"markdown-body\">" . PHP_EOL;
+//     $dir_readme .= $Parsedown->text($readme_content);
+//     $dir_readme .= "          </div>" . PHP_EOL;
+//     $dir_readme .= "        </div> " . PHP_EOL;
+//     $dir_readme .= "      </div> " . PHP_EOL;
+//     $dir_readme .= "    </div>" . PHP_EOL;
+// }
 
 // Set table header
 $table_header = null;
@@ -461,7 +488,7 @@ if(($folder_list) || ($file_list) ) {
 
             $table_body .= "            <td";
             if ($options['general']['enable_sort']) {
-                $table_body .= " class=\"text-xs-$left\" data-sort-value=\"dir-". htmlentities(utf8_encode($item['lbname']), ENT_QUOTES, 'utf-8') . "\"" ;
+                $table_body .= " class=\"text-xs-$left\" data-sort-value=\"dir-". htmlentities($item['lbname'], ENT_QUOTES, 'utf-8') . "\"" ;
             }
             $table_body .= ">";
             if ($options['bootstrap']['icons'] !== null ) {
@@ -590,7 +617,7 @@ if(($folder_list) || ($file_list) ) {
             
             $table_body .= "            <td";
             if ($options['general']['enable_sort']) {
-                $table_body .= " class=\"text-xs-$left\" data-sort-value=\"file-". htmlentities(utf8_encode($item['lbname']), ENT_QUOTES, 'utf-8') . "\"" ;
+                $table_body .= " class=\"text-xs-$left\" data-sort-value=\"file-". htmlentities($item['lbname'], ENT_QUOTES, 'utf-8') . "\"" ;
             }
             $table_body .= ">";
             if ($options['bootstrap']['icons'] !== null ) {
@@ -719,7 +746,7 @@ if(($folder_list) || ($file_list) ) {
 
 // Give kudos
 if ($options['general']['give_kudos']) {
-    $kudos = "<a class=\"pull-".$right." small text-muted\" href=\"https://github.com/idleberg/Bootstrap-Listr\" title=\"Bootstrap Listr on GitHub\" target=\"_blank\">"._('Fork me on GitHub')."</a>" . PHP_EOL;
+    $kudos = "<a class=\"pull-xs-".$right." small text-muted\" href=\"https://github.com/idleberg/Bootstrap-Listr\" title=\"Bootstrap Listr on GitHub\" target=\"_blank\">"._('Fork me on GitHub')."</a>" . PHP_EOL;
 }
 
 require_once('listr-template.php');
